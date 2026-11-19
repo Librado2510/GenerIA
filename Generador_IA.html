@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generador IA — Galería personal</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#141c31;--panel2:#1b2741;--line:#2b3a5d;--txt:#edf2ff;--muted:#aab7d3;--accent:#8b7cff;--accent2:#4ed6c2;--danger:#ff6b7a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1a2450 0,#0b1020 55%);font:15px system-ui,-apple-system,Segoe UI,sans-serif;color:var(--txt);min-height:100vh}
+header{padding:25px 20px 12px;text-align:center}h1{margin:0;font-size:clamp(25px,5vw,38px);letter-spacing:-1px}header p{color:var(--muted);margin:8px auto;max-width:700px}
+main{max-width:1120px;margin:auto;padding:14px 16px 50px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:18px;align-items:start}
+.panel{background:rgba(20,28,49,.94);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 15px 40px #0003}
+label{display:block;font-weight:650;margin:12px 0 7px}textarea,input,select{width:100%;border:1px solid var(--line);background:#0d1528;color:var(--txt);border-radius:11px;padding:12px;font:inherit;outline:none}textarea:focus,input:focus,select:focus{border-color:var(--accent)}textarea{min-height:118px;resize:vertical}
+.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+button{border:0;border-radius:11px;padding:12px 15px;font:700 14px system-ui;cursor:pointer;color:#10152a;background:linear-gradient(110deg,#9b8cff,#5ce0cc)}button:disabled{opacity:.5;cursor:wait}.secondary{background:#263553;color:var(--txt);border:1px solid var(--line)}.danger{background:#482633;color:#ffdce1;border:1px solid #75404c}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.actions button{flex:1}
+.small{font-size:12px;color:var(--muted);line-height:1.5}.status{margin-top:12px;padding:10px 12px;background:#0d1528;border-radius:10px;color:var(--muted);min-height:42px}.status.error{color:#ff9da7}.status.ok{color:#75e5c5}
+.preview{margin-top:18px;min-height:230px;border:1px dashed #435477;border-radius:14px;display:grid;place-items:center;overflow:hidden;background:#0d1528}.preview img{display:block;max-width:100%;max-height:650px;object-fit:contain}.placeholder{text-align:center;color:var(--muted);padding:30px}
+.gallery-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:24px 0 12px}.gallery-head h2{margin:0;font-size:20px}.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.tile{background:var(--panel);border:1px solid var(--line);border-radius:13px;overflow:hidden}.tile img{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#080d19}.tile-info{padding:9px}.tile-info p{font-size:12px;color:var(--muted);margin:0 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.tile-buttons{display:flex;gap:6px}.tile-buttons button{padding:7px 9px;font-size:12px;flex:1}
+.key-note{border-left:3px solid var(--accent2);padding:9px 11px;background:#10272b;border-radius:5px;color:#c9f8ee;font-size:12px;line-height:1.5;margin-top:10px}
+.check{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:8px}.check input{width:auto}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.side{order:-1}.gallery{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}}
+</style>
+</head>
+<body>
+<header><h1>✨ Generador de imágenes IA</h1><p>Crea imágenes desde texto y conserva tu galería en este dispositivo.</p></header>
+<main>
+<div class="layout">
+<section class="panel">
+<label for="prompt">¿Qué imagen quieres crear?</label>
+<textarea id="prompt" placeholder="Ej.: Un zorro astronauta caminando por una ciudad futurista bajo la lluvia, iluminación cinematográfica, gran detalle..."></textarea>
+<div class="row">
+<div><label for="model">Modelo</label><select id="model"><option value="flux">FLUX (Pollinations)</option></select></div>
+<div><label for="size">Formato</label><select id="size"><option value="1024x1024">Cuadrado (1:1)</option><option value="1024x768">Horizontal (4:3)</option><option value="768x1024">Vertical (3:4)</option><option value="1280x720">Panorámico (16:9)</option><option value="720x1280">Historia (9:16)</option></select></div>
+</div>
+<label for="negative">Elementos que quieres evitar (opcional)</label><input id="negative" placeholder="Ej.: texto, marcas de agua, manos deformes">
+<div class="actions"><button id="generate">Generar imagen</button><button class="secondary" id="clearPrompt">Limpiar</button></div>
+<div id="status" class="status" role="status">Preparado. Añade tu clave API en el panel de configuración.</div>
+<div class="preview" id="preview"><div class="placeholder">🖼️<br>Tu imagen aparecerá aquí</div></div>
+<div class="actions" id="imageActions" hidden><button class="secondary" id="downloadCurrent">Descargar imagen</button></div>
+</section>
+<aside class="panel side">
+<h2 style="margin:0 0 8px;font-size:19px">⚙️ Configuración API</h2>
+<label for="apiKey">Clave API de Pollinations</label><input id="apiKey" type="password" autocomplete="off" placeholder="Pega aquí tu clave sk_...">
+<div class="check"><input id="rememberKey" type="checkbox"><label for="rememberKey" style="margin:0;font-weight:400">Recordar clave en este navegador</label></div>
+<div class="actions"><button class="secondary" id="saveKey">Guardar configuración</button><button class="secondary" id="forgetKey">Olvidar clave</button></div>
+<div class="key-note">La clave es personal. No existe una clave universal gratuita que pueda incrustar aquí. Para evitar exponerla, crea una clave con permisos y presupuesto limitados. No compartas este archivo con la clave guardada.</div>
+<p class="small">Consigue tu clave en <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noopener" style="color:#b9adff">enter.pollinations.ai/keys</a>. La generación puede consumir saldo/créditos según las condiciones vigentes del proveedor.</p>
+<hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+<h3 style="font-size:16px;margin:0 0 8px">💾 Tu galería</h3>
+<p class="small">Las imágenes se guardan en IndexedDB dentro de este navegador, no en la nube. Si borras los datos del sitio/navegador, podrías perderlas. Descarga copias importantes.</p>
+<div class="small" id="galleryCount">Cargando galería...</div>
+<div class="actions"><button class="secondary" id="exportAll">Exportar galería</button><button class="danger" id="deleteAll">Borrar todo</button></div>
+</aside>
+</div>
+<div class="gallery-head"><h2>Mis creaciones</h2><span class="small">Guardadas en este dispositivo</span></div>
+<div id="gallery" class="gallery"></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let currentBlob=null, currentUrl=null, db;
+const DB_NAME='GaleriaGeneradorIA', STORE='images';
+function setStatus(msg,type=''){const s=$('status');s.textContent=msg;s.className='status '+type}
+function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,1);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id',autoIncrement:true})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+function tx(mode,fn){return new Promise((resolve,reject)=>{const t=db.transaction(STORE,mode),s=t.objectStore(STORE);let result;try{result=fn(s)}catch(e){reject(e);return}t.oncomplete=()=>resolve(result?.result);t.onerror=()=>reject(t.error)})}
+async function allImages(){return new Promise((resolve,reject)=>{const r=db.transaction(STORE).objectStore(STORE).getAll();r.onsuccess=()=>resolve(r.result.reverse());r.onerror=()=>reject(r.error)})}
+async function refreshGallery(){const items=await allImages();$('galleryCount').textContent=items.length+' imagen(es) guardada(s)';$('gallery').innerHTML='';if(!items.length){$('gallery').innerHTML='<div class="small">Todavía no has creado imágenes.</div>';return}
+for(const item of items){const url=URL.createObjectURL(item.blob),tile=document.createElement('article');tile.className='tile';const img=document.createElement('img');img.src=url;img.alt=item.prompt;const info=document.createElement('div');info.className='tile-info';const p=document.createElement('p');p.textContent=item.prompt;const btns=document.createElement('div');btns.className='tile-buttons';const dl=document.createElement('button');dl.textContent='Descargar';dl.className='secondary';dl.onclick=()=>downloadBlob(item.blob,'imagen-ia-'+item.id+'.png');const del=document.createElement('button');del.textContent='Eliminar';del.className='danger';del.onclick=async()=>{await tx('readwrite',s=>s.delete(item.id));URL.revokeObjectURL(url);refreshGallery()};const use=document.createElement('button');use.textContent='Ver';use.className='secondary';use.onclick=()=>showCurrent(item.blob);btns.append(dl,use,del);info.append(p,btns);tile.append(img,info);$('gallery').append(tile)}}
+function showCurrent(blob){currentBlob=blob;if(currentUrl)URL.revokeObjectURL(currentUrl);currentUrl=URL.createObjectURL(blob);$('preview').innerHTML='';const img=document.createElement('img');img.src=currentUrl;img.alt='Imagen generada';$('preview').append(img);$('imageActions').hidden=false}
+function downloadBlob(blob,name){const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1500)}
+$('saveKey').onclick=()=>{const key=$('apiKey').value.trim();if(!key){setStatus('Pega primero tu clave API.','error');return}if($('rememberKey').checked){localStorage.setItem('pollinations_user_key',key);sessionStorage.removeItem('pollinations_user_key')}else{sessionStorage.setItem('pollinations_user_key',key);localStorage.removeItem('pollinations_user_key')}setStatus('Clave guardada en este navegador.','ok')};
+$('forgetKey').onclick=()=>{localStorage.removeItem('pollinations_user_key');sessionStorage.removeItem('pollinations_user_key');$('apiKey').value='';$('rememberKey').checked=false;setStatus('Clave eliminada de este navegador.','ok')};
+const stored=localStorage.getItem('pollinations_user_key')||sessionStorage.getItem('pollinations_user_key');if(stored){$('apiKey').value=stored;$('rememberKey').checked=!!localStorage.getItem('pollinations_user_key')}
+$('clearPrompt').onclick=()=>{$('prompt').value='';$('negative').value=''};
+$('downloadCurrent').onclick=()=>{if(currentBlob)downloadBlob(currentBlob,'imagen-generada.png')};
+$('generate').onclick=async()=>{const prompt=$('prompt').value.trim(),key=$('apiKey').value.trim();if(!prompt){setStatus('Escribe una descripción para la imagen.','error');return}if(!key){setStatus('Necesitas una clave API personal. Consíguela desde el enlace del panel y pégala aquí.','error');return}
+const [width,height]=$('size').value.split('x');const fullPrompt=$('negative').value.trim()?prompt+'. Avoid: '+$('negative').value.trim():prompt;
+const btn=$('generate');btn.disabled=true;btn.textContent='Generando...';setStatus('Conectando con Pollinations. Puede tardar un poco...');try{
+const url='https://gen.pollinations.ai/image/'+encodeURIComponent(fullPrompt)+'?model='+encodeURIComponent($('model').value)+'&width='+width+'&height='+height+'&nologo=true';
+const response=await fetch(url,{headers:{'Authorization':'Bearer '+key}});
+if(!response.ok){let detail='';try{detail=await response.text()}catch{}throw new Error('Error HTTP '+response.status+(detail?': '+detail.slice(0,220):''))}
+const blob=await response.blob();if(!blob.type.startsWith('image/'))throw new Error('El proveedor no devolvió un archivo de imagen.');await tx('readwrite',s=>s.add({blob,prompt,createdAt:Date.now(),model:$('model').value}));showCurrent(blob);await refreshGallery();setStatus('¡Imagen creada y guardada en tu galería!','ok')
+}catch(e){setStatus('No se pudo generar: '+e.message+'. Revisa tu clave, saldo, conexión o disponibilidad del modelo.','error')}finally{btn.disabled=false;btn.textContent='Generar imagen'}};
+$('exportAll').onclick=async()=>{const items=await allImages();if(!items.length){setStatus('No hay imágenes para exportar.');return}for(let i=0;i<items.length;i++){downloadBlob(items[i].blob,'galeria-ia-'+items[i].id+'.png');await new Promise(r=>setTimeout(r,250))}};
+$('deleteAll').onclick=async()=>{if(!confirm('¿Seguro que quieres borrar todas las imágenes guardadas? Esta acción no se puede deshacer.'))return;await tx('readwrite',s=>s.clear());$('preview').innerHTML='<div class="placeholder">🖼️<br>Tu imagen aparecerá aquí</div>';$('imageActions').hidden=true;currentBlob=null;refreshGallery();setStatus('Galería vaciada.','ok')};
+(async()=>{try{db=await openDB();await refreshGallery()}catch(e){$('galleryCount').textContent='No se pudo abrir el almacenamiento local: '+e.message}})();
+</script>
+</body>
+</html>
